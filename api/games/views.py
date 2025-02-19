@@ -12,8 +12,8 @@ from django.core.exceptions import ObjectDoesNotExist
 def create_game(request, *args, **kwargs):
     if request.method == "POST":
         new_map = generate_map();
-        new_game = Game.objects.create(values=new_map)
-        new_board = generate_board(new_game.values)
+        new_game = Game.objects.create(game_map=new_map)
+        new_board = generate_board(new_game.game_map)
         new_game_alias = encode(str(new_game.id))
 
         return JsonResponse(dict(id=new_game_alias, is_complete=new_game.is_complete, game_board=new_board))
@@ -29,7 +29,7 @@ def get_game(request, game_id, *args, **kwargs):
         except:
             return HttpResponseNotFound()
         else:
-            board = generate_board(game.values)
+            board = generate_board(game.game_map)
             return JsonResponse(dict(id=game_id, is_complete=game.is_complete, game_board=board)) 
     else:
         return HttpResponseNotAllowed("Method not supported")
