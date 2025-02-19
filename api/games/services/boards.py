@@ -1,29 +1,22 @@
+import random
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from games.models import Game
 from games.constants import UNREVEALED_BOARD_CELL_VALUE, BOARD_BOMB_VALUE
 from games.utils import encode, decode
+from games.constants import BOARD_WIDTH, BOARD_BOMB_PERCENTAGE
 
-def generate_map():
-    ## TODO: randomly generate
-    return {
-            0: {
-                0: { 'is_bomb': True, 'is_revealed': False },
-                1: { 'is_bomb': False, 'is_revealed': False },
-                2: { 'is_bomb': False, 'is_revealed': False },
-            },
-            1: {
-                0: { 'is_bomb': True, 'is_revealed': False },
-                1: { 'is_bomb': False, 'is_revealed': False },
-                2: { 'is_bomb': False, 'is_revealed': False },
-            },
-            2: {
-                0: { 'is_bomb': False, 'is_revealed': False },
-                1: { 'is_bomb': False, 'is_revealed': False },
-                2: { 'is_bomb': False, 'is_revealed': False },
-            },
-        }
+def generate_map(size=BOARD_WIDTH):
+    game_map = {}
+    for row_index in range(0, size):
+        columns = {}
+        for column in range(0, size):
+            is_bomb = random.randint(1,100) <= BOARD_BOMB_PERCENTAGE
+            columns[column] = dict(is_bomb=is_bomb, is_revealed=False) 
+        game_map[row_index] = columns
+    return game_map
+
 
 def generate_board(game_map):
     board = [
@@ -44,6 +37,7 @@ def generate_adjacent_cells(row_index, column_index, game_map):
         if not (row == row_index and column == column_index)
     ]
     return adjacent_cells
+
 
 def calculate_board_cell_value(row_index, column_index, game_map):
     cell = game_map[row_index][column_index]
