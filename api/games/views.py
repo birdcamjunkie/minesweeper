@@ -14,6 +14,7 @@ def create_game(request, *args, **kwargs):
         new_map = generate_map();
         new_game = Game.objects.create(values=new_map)
         new_board = generate_board(new_game.values)
+        new_game_alias = encode(str(new_game.id))
 
         return JsonResponse(dict(id=new_game_alias, is_complete=new_game.is_complete, game_board=new_board))
     else:
