@@ -56,4 +56,14 @@ def calculate_board_cell_value(row_index, column_index, game_map):
             return cell_value;
 
 def update_board(row_index, column_index, game_map):
+    # idea: 
+    # check if cell is bomb
+    #   if it is - reveal cell, change game to complete
+    # if it is not, reveal cell
+    #    if cell has no adjacent bomb, update adjacent cells
+    #      for each adjacent cell,
+    #        if it is a bomb, do not reveal value 
+    #        if it is not a bomb and not 0, reveal value
+    #        if it is not a bomb and has zero value, call update_board on cell
+    # get game from db, return generated board     
     return ''
