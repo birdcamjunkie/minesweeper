@@ -1,37 +1,44 @@
 import unittest
 
 from django.test import TestCase
-from games.services.boards import generate_board, generate_map, calculate_board_cell_value, generate_adjacent_cells
+from games.services.boards import (
+    generate_board,
+    generate_map,
+    calculate_board_cell_value,
+    generate_adjacent_cells,
+)
 from games.utils import encode, decode
 
-class TestGame:
-    '''
-        # game_map visualization:
-        T  F  F
-        T  F  F
-        F  F  F
 
-        # game_board visualizaton:
-        N  N  N
-        -1 2  N
-        N  N  0
-    '''
+class TestGame:
+    """
+    # game_map visualization:
+    T  F  F
+    T  F  F
+    F  F  F
+
+    # game_board visualizaton:
+    N  N  N
+    -1 2  N
+    N  N  0
+    """
+
     def __init__(self):
         self.__game_map = {
             0: {
-                0: { 'is_bomb': True, 'is_revealed': False },
-                1: { 'is_bomb': False, 'is_revealed': False },
-                2: { 'is_bomb': False, 'is_revealed': False },
+                0: {"is_bomb": True, "is_revealed": False},
+                1: {"is_bomb": False, "is_revealed": False},
+                2: {"is_bomb": False, "is_revealed": False},
             },
             1: {
-                0: { 'is_bomb': True, 'is_revealed': True },
-                1: { 'is_bomb': False, 'is_revealed': True },
-                2: { 'is_bomb': False, 'is_revealed': False },
+                0: {"is_bomb": True, "is_revealed": True},
+                1: {"is_bomb": False, "is_revealed": True},
+                2: {"is_bomb": False, "is_revealed": False},
             },
             2: {
-                0: { 'is_bomb': False, 'is_revealed': False },
-                1: { 'is_bomb': False, 'is_revealed': False },
-                2: { 'is_bomb': False, 'is_revealed': True },
+                0: {"is_bomb": False, "is_revealed": False},
+                1: {"is_bomb": False, "is_revealed": False},
+                2: {"is_bomb": False, "is_revealed": True},
             },
         }
         self.__game_board = [None, None, None, -1, 2, None, None, None, 0]
@@ -69,7 +76,7 @@ class TestBoardMethods(unittest.TestCase):
         game_map = generate_map(board_size)
         for row in range(0, board_size):
             for column in range(0, board_size):
-                self.assertFalse(game_map[row][column]['is_revealed'])
+                self.assertFalse(game_map[row][column]["is_revealed"])
 
     def test_generate_board(self):
         game_map = self.game.get_game_map()
@@ -78,14 +85,23 @@ class TestBoardMethods(unittest.TestCase):
 
     def test_get_adjacent_cells(self):
         game_map = self.game.get_game_map()
-        self.assertEqual(generate_adjacent_cells(0, 0, game_map), [(0, 1), (1, 0), (1, 1)])
-        self.assertEqual(generate_adjacent_cells(1, 0, game_map), [(0, 0), (0, 1), (1, 1), (2, 0), (2, 1)])
-        self.assertEqual(generate_adjacent_cells(1, 1, game_map), [(0, 0), (0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1), (2, 2)])
+        self.assertEqual(
+            generate_adjacent_cells(0, 0, game_map), [(0, 1), (1, 0), (1, 1)]
+        )
+        self.assertEqual(
+            generate_adjacent_cells(1, 0, game_map),
+            [(0, 0), (0, 1), (1, 1), (2, 0), (2, 1)],
+        )
+        self.assertEqual(
+            generate_adjacent_cells(1, 1, game_map),
+            [(0, 0), (0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1), (2, 2)],
+        )
+
 
 class TestUtilMethods(unittest.TestCase):
     def setUp(self):
         self.decoded_string = "1"
-        self.encoded_string = 'MQ'
+        self.encoded_string = "MQ"
 
     def test_encode(self):
         encoded_string = encode(self.decoded_string)
