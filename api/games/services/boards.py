@@ -14,7 +14,7 @@ from games.constants import (
     BOARD_WIDTH,
     BOARD_BOMB_PERCENTAGE,
 )
-from games.utils import encode, decode
+from games.utils import encode, decode, parse_json_game_map
 
 
 def generate_map(size=BOARD_WIDTH):
@@ -69,15 +69,19 @@ def calculate_board_cell_value(
 
             return cell_value
 
+
 def update_game(row_index, column_index, game):
-    updated_game_map = update_game_map(row_index, column_index, game.game_map)
-    print('store updated game in DB...') #TODO
-    print('return updated game from db...')
-    updated_board = generae_board(updated_game_map)
+    game_map = parse_json_game_map(game.game_map)
+    updated_game_map = update_game_map(row_index, column_index, game_map)
+    print("store updated game in DB...")  # TODO
+    print("return updated game from db...")
+    updated_board = generate_board(updated_game_map)
     updated_game_is_complete = -1 in updated_board or None not in updated_board
-    print(updated_board)
     print(updated_game_is_complete)
-    return dict(id=game.id, is_complete=updated_game_is_complete, game_board=updated_board)
+    return dict(
+        id=game.id, is_complete=updated_game_is_complete, game_board=updated_board
+    )
+
 
 def update_game_map(row_index, column_index, game_map):
     is_bomb, is_revealed = game_map[row_index][column_index].values()
@@ -89,13 +93,11 @@ def update_game_map(row_index, column_index, game_map):
             while len(cells_to_update) > 0:
                 (row, column) = cells_to_update.pop()
                 game_map[row][column]["is_revealed"] = True
-                cell_value = calculate_board_cell_value(
-                    row, column, game_map, False
-                )
+                cell_value = calculate_board_cell_value(row, column, game_map, False)
                 if cell_value == 0:
-                    for (i, j) in generate_adjacent_cells(row, column, game_map):
+                    for i, j in generate_adjacent_cells(row, column, game_map):
                         is_bomb, is_revealed = game_map[i][j].values()
                         if not is_bomb and not is_revealed:
-                            cells_to_update.append((i,j))
+                            cells_to_update.append((i, j))
 
     return game_map

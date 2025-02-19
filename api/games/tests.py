@@ -8,7 +8,7 @@ from games.services.boards import (
     calculate_board_cell_value,
     update_game_map,
 )
-from games.utils import encode, decode
+from games.utils import encode, decode, parse_json_game_map, stringify_game_map
 
 
 class TestGame:
@@ -64,11 +64,11 @@ class TestBoardMethods(unittest.TestCase):
         # if it is not revealed with no masking arg: check adjacent cells
         self.assertEqual(calculate_board_cell_value(1, 1, game_map, False), 2)
         # if it is revealed and is a bomb: -1
-        game_map[1][0]['is_revealed'] = True
+        game_map[1][0]["is_revealed"] = True
         self.assertEqual(calculate_board_cell_value(1, 0, game_map), -1)
         # if it is is revealed and not a bomb: check adjacent cells
-        game_map[1][1]['is_revealed'] = True
-        game_map[2][2]['is_revealed'] = True
+        game_map[1][1]["is_revealed"] = True
+        game_map[2][2]["is_revealed"] = True
         self.assertEqual(calculate_board_cell_value(1, 1, game_map), 2)
         self.assertEqual(calculate_board_cell_value(2, 2, game_map), 0)
 
@@ -90,14 +90,13 @@ class TestBoardMethods(unittest.TestCase):
         self.assertEqual(generate_board(game_map), game_board)
 
         # reveal certain cells
-        game_map[1][0]['is_revealed'] = True # bomb
-        game_map[1][1]['is_revealed'] = True # value == 2
-        game_map[2][2]['is_revealed'] = True # value == 0
+        game_map[1][0]["is_revealed"] = True  # bomb
+        game_map[1][1]["is_revealed"] = True  # value == 2
+        game_map[2][2]["is_revealed"] = True  # value == 0
         game_board[3] = -1
-        game_board[4] = 2 
-        game_board[8] = 0 
+        game_board[4] = 2
+        game_board[8] = 0
         self.assertEqual(generate_board(game_map), game_board)
-
 
     def test_get_adjacent_cells(self):
         game_map = self.game.get_game_map()
@@ -120,6 +119,7 @@ class TestBoardMethods(unittest.TestCase):
     N   N  N       N  N  N
     
     """
+
     def test_update_board_clicking_revealed_cell(self):
         game_map = self.game.get_game_map()
         updated_game_map = update_game_map(1, 1, game_map)
@@ -132,6 +132,7 @@ class TestBoardMethods(unittest.TestCase):
     N   N  N       N  N  N
     
     """
+
     def test_update_board_clicking_bomb(self):
         game_map = self.game.get_game_map()
         updated_game_map = update_game_map(0, 0, game_map)
@@ -146,6 +147,7 @@ class TestBoardMethods(unittest.TestCase):
                         updated_game_map[row][column],
                         game_map[row][column],
                     )
+
     """
     # game update:
     N  (N)  N     N   2  N
@@ -153,6 +155,7 @@ class TestBoardMethods(unittest.TestCase):
     N   N   N     N   N  N
     
     """
+
     def test_update_board_clicking_single_update(self):
         game_map = self.game.get_game_map()
         updated_game_map = update_game_map(0, 1, game_map)
@@ -175,13 +178,14 @@ class TestBoardMethods(unittest.TestCase):
     N   N  (N)     N   1   0
     
     """
+
     def test_update_board_clicking_multiple_updates(self):
         game_map = self.game.get_game_map()
         updated_game_map = update_game_map(2, 2, game_map)
         for row in range(3):
             for column in range(3):
                 if column != 0:
-                    self.assertTrue(updated_game_map[row][column]['is_revealed'])
+                    self.assertTrue(updated_game_map[row][column]["is_revealed"])
                 else:
                     self.assertEqual(
                         updated_game_map[row][column],
@@ -207,5 +211,23 @@ class TestUtilMethods(unittest.TestCase):
     def test_encode(self):
         encoded_string = encode(self.decoded_string)
         self.assertEqual(self.encoded_string, encoded_string)
-        decoded_string = decode(encoded_string)
+
+    def test_decode(self):
+        decoded_string = decode(self.encoded_string)
         self.assertEqual(self.decoded_string, decoded_string)
+
+    def test_parse_json_map(self):
+        game_map = {
+            0: {
+                0: dict(is_bomb=False, is_complete=False),
+                1: dict(is_bomb=False, is_complete=False),
+            }
+        }
+        json_game_map = {
+            "0": {
+                "0": dict(is_bomb=False, is_complete=False),
+                "1": dict(is_bomb=False, is_complete=False),
+            }
+        }
+        self.assertEqual(game_map, parse_json_game_map(json_game_map))
+        self.assertEqual(json_game_map, stringify_game_map(game_map))

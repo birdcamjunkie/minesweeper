@@ -17,7 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
-from games.views import create_game, get_game, update_game
+from games.views import create_game, get_game, update_cell
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -25,7 +25,7 @@ urlpatterns = [
     path("games/<str:game_id>", get_game, name="get_game_by_id"),
     path(
         "games/<str:game_id>/cell<int:cell_id>",
-        update_game,
+        update_cell,
         name="update_cell_of_game_by_id",
     ),
 ]

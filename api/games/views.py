@@ -8,9 +8,9 @@ from django.http import (
 )
 from django.views.decorators.csrf import csrf_exempt
 from games.models import Game
-from games.constants import UNREVEALED_BOARD_CELL_VALUE, BOARD_BOMB_VALUE
+from games.constants import BOARD_WIDTH
 from games.utils import encode, decode
-from games.services.boards import generate_map, generate_board, update_board
+from games.services.boards import generate_map, generate_board, update_game
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -51,20 +51,23 @@ def get_game(request, game_id, *args, **kwargs):
         return HttpResponseNotAllowed("Method not supported")
 
 
-def update_game(request, game_id, grid_id, *args, **kwargs):
+@csrf_exempt
+def update_cell(request, game_id, cell_id, *args, **kwargs):
     if request.method == "PUT":
         try:
             game = Game.objects.get(id=decode(game_id))
-        except:
+            if game is None:
+                raise ObjectDoesNotExist()
+            else:
+                row_index, column_index = divmod(cell_id, BOARD_WIDTH)
+                if (not (0 <= row_index < BOARD_WIDTH)) or (
+                    not (0 <= column_index < BOARD_WIDTH)
+                ):
+                    raise ObjectDoesNotExist()
+
+                updated_game = update_game(row_index, column_index, game)
+                return JsonResponse(updated_game)
+        except ObjectDoesNotExist:
             return HttpResponseBadRequest()
-        if game is None:
-            return HttpResponseBadRequest()
-        else:
-            # TODO: remove stub and get it from the body
-            # also validate we only get one move at a time
-            row_index = 0
-            column_index = 0
-            board = update_board(row_index, column_index, game.id)
-            return HttpResponse(board)
     else:
         return HttpResponseNotAllowed("Method not supported")
