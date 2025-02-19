@@ -8,9 +8,13 @@ from django.http import (
 )
 from django.views.decorators.csrf import csrf_exempt
 from games.models import Game
-from games.constants import UNREVEALED_BOARD_CELL_VALUE, BOARD_BOMB_VALUE
+from games.constants import (
+    UNREVEALED_BOARD_CELL_VALUE,
+    BOARD_BOMB_VALUE,
+    BOARD_WIDTH,
+    BOARD_BOMB_PERCENTAGE,
+)
 from games.utils import encode, decode
-from games.constants import BOARD_WIDTH, BOARD_BOMB_PERCENTAGE
 
 
 def generate_map(size=BOARD_WIDTH):
@@ -33,21 +37,25 @@ def generate_board(game_map):
     return board
 
 
+# TODO: remove game_map
 def generate_adjacent_cells(row_index, column_index, game_map):
+    size = len(game_map.keys())
     adjacent_cells = [
         (row, column)
         for row in range(row_index - 1, row_index + 2)
         for column in range(column_index - 1, column_index + 2)
-        if row in game_map.keys()
-        if column in game_map[0].keys()
+        if 0 <= row < size
+        if 0 <= column < size
         if not (row == row_index and column == column_index)
     ]
     return adjacent_cells
 
 
-def calculate_board_cell_value(row_index, column_index, game_map):
+def calculate_board_cell_value(
+    row_index, column_index, game_map, mask_hidden_cell_value=True
+):
     cell = game_map[row_index][column_index]
-    if not cell["is_revealed"]:
+    if mask_hidden_cell_value and not cell["is_revealed"]:
         return UNREVEALED_BOARD_CELL_VALUE
     else:
         if cell["is_bomb"]:
@@ -61,16 +69,33 @@ def calculate_board_cell_value(row_index, column_index, game_map):
 
             return cell_value
 
+def update_game(row_index, column_index, game):
+    updated_game_map = update_game_map(row_index, column_index, game.game_map)
+    print('store updated game in DB...') #TODO
+    print('return updated game from db...')
+    updated_board = generae_board(updated_game_map)
+    updated_game_is_complete = -1 in updated_board or None not in updated_board
+    print(updated_board)
+    print(updated_game_is_complete)
+    return dict(id=game.id, is_complete=updated_game_is_complete, game_board=updated_board)
 
-def update_board(row_index, column_index, game_map):
-    # idea:
-    # check if cell is bomb
-    #   if it is - reveal cell, change game to complete
-    # if it is not, reveal cell
-    #    if cell has no adjacent bomb, update adjacent cells
-    #      for each adjacent cell,
-    #        if it is a bomb, do not reveal value
-    #        if it is not a bomb and not 0, reveal value
-    #        if it is not a bomb and has zero value, call update_board on cell
-    # get game from db, return generated board
-    return ""
+def update_game_map(row_index, column_index, game_map):
+    is_bomb, is_revealed = game_map[row_index][column_index].values()
+    if not is_revealed:
+        if is_bomb:
+            game_map[row_index][column_index]["is_revealed"] = True
+        else:
+            cells_to_update = [(row_index, column_index)]
+            while len(cells_to_update) > 0:
+                (row, column) = cells_to_update.pop()
+                game_map[row][column]["is_revealed"] = True
+                cell_value = calculate_board_cell_value(
+                    row, column, game_map, False
+                )
+                if cell_value == 0:
+                    for (i, j) in generate_adjacent_cells(row, column, game_map):
+                        is_bomb, is_revealed = game_map[i][j].values()
+                        if not is_bomb and not is_revealed:
+                            cells_to_update.append((i,j))
+
+    return game_map

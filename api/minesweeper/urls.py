@@ -24,8 +24,8 @@ urlpatterns = [
     path("games", create_game, name="create_new_game"),
     path("games/<str:game_id>", get_game, name="get_game_by_id"),
     path(
-        "games/<str:game_id>/<int:grid_id>",
+        "games/<str:game_id>/cell<int:cell_id>",
         update_game,
-        name="update_grid_of_game_by_id",
+        name="update_cell_of_game_by_id",
     ),
 ]
