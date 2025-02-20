@@ -1,26 +1,41 @@
 "use client";
 
 import clsx from "clsx";
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 
 import { Game } from "../_lib/types";
 import Cell from "./Cell";
+import { updateGame } from "../_lib/games.service";
 
 type Props = {
   game: Game;
 };
 
 export default function Board({ game }: Props) {
-  // TODO: use mutation for the click, update game when it is updated
-  const onClick = (index: number) => console.log(`click on cell ${index}`);
-  const { isComplete, gameBoard } = game;
+  const [gameState, setGameState] = useState<Game>(game);
+  const mutation = useMutation({
+    mutationFn: updateGame,
+    onSuccess: (game: Game) => {
+      setGameState(game);
+    }
+  });
+  const onClick = (index: number) => {
+    mutation.mutate({
+      game_id: game.id,
+      cell_index: index,
+    })
+  });
+  const { isComplete, gameBoard } = gameState;
   const numberOfColumns = Math.floor(Math.sqrt(gameBoard.length));
   const numberOfCellsCleared = gameBoard.filter(
     (cell) => cell != null && cell > -1
   ).length;
+  const isGameOver = isComplete && gameBoard.some((cell) => cell != null && cell === -1);
 
   return (
     <div className="flex flex-col gap-4 justify-center items-center h-screen">
-      {isComplete && <div className="text-2xl ">GAME OVER</div>}
+      {isComplete && <div className="text-2xl ">{isGameOver ? 'GAME OVER' : 'CLEARED!'}</div>}
       <div className="font-semibold text-xl">
         Number of Cells Cleared: {numberOfCellsCleared}
       </div>

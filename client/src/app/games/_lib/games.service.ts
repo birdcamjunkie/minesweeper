@@ -23,10 +23,14 @@ export async function getGame(game_id: string): Promise<Game> {
   return changeCaseKeys.camelCase(data);
 }
 
-export async function updateGame(
-  game_id: string,
-  cell_index: number
-): Promise<Game> {
+export async function updateGame({
+  game_id,
+  cell_index,
+}: {
+  game_id: string;
+  cell_index: number;
+}): Promise<Game> {
+
   const response = await fetch(
     `http://localhost:8000/games/${game_id}/cell${cell_index}`,
     {
@@ -37,6 +41,6 @@ export async function updateGame(
     console.log("Failed to update the game");
     return null;
   }
-  const { data, error } = await response.json();
+  const data = await response.json();
   return changeCaseKeys.camelCase(data);
 }
