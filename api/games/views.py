@@ -9,12 +9,12 @@ from django.http import (
 from django.views.decorators.csrf import csrf_exempt
 from games.models import Game
 from games.constants import BOARD_WIDTH
-from games.utils import encode, decode
+from games.utils import encode, decode, parse_json_game_map
 from games.services.boards import generate_map, generate_board, update_game
 from django.core.exceptions import ObjectDoesNotExist
 
 
-# TODO: remove
+# TODO: remove csrf policy
 @csrf_exempt
 def create_game(request, *args, **kwargs):
     if request.method == "POST":
@@ -43,7 +43,7 @@ def get_game(request, game_id, *args, **kwargs):
         except:
             return HttpResponseNotFound()
         else:
-            board = generate_board(game.game_map)
+            board = generate_board(parse_json_game_map(game.game_map))
             return JsonResponse(
                 dict(id=game_id, is_complete=game.is_complete, game_board=board)
             )

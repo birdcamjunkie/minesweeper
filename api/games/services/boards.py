@@ -14,7 +14,7 @@ from games.constants import (
     BOARD_WIDTH,
     BOARD_BOMB_PERCENTAGE,
 )
-from games.utils import encode, decode, parse_json_game_map
+from games.utils import encode, decode, parse_json_game_map, stringify_game_map
 
 
 def generate_map(size=BOARD_WIDTH):
@@ -37,7 +37,7 @@ def generate_board(game_map):
     return board
 
 
-# TODO: remove game_map
+# TODO: game_map arg may not be necessary - remove
 def generate_adjacent_cells(row_index, column_index, game_map):
     size = len(game_map.keys())
     adjacent_cells = [
@@ -72,15 +72,35 @@ def calculate_board_cell_value(
 
 def update_game(row_index, column_index, game):
     game_map = parse_json_game_map(game.game_map)
-    updated_game_map = update_game_map(row_index, column_index, game_map)
-    print("store updated game in DB...")  # TODO
-    print("return updated game from db...")
-    updated_board = generate_board(updated_game_map)
-    updated_game_is_complete = -1 in updated_board or None not in updated_board
-    print(updated_game_is_complete)
-    return dict(
-        id=encode(str(game.id)), is_complete=updated_game_is_complete, game_board=updated_board
-    )
+    # no need to update a game if it is completed already
+    if game.is_complete:
+        game_board = generate_board(game_map)
+        return dic(
+            id=encode(str(game.id)), is_complete=game.is_complete, game_board=game_board
+        )
+    else:
+        updated_game_map = update_game_map(row_index, column_index, game_map)
+        clicked_bombs = [
+            cell
+            for row in game_map.values()
+            for cell in row.values()
+            if cell["is_bomb"] and cell["is_revealed"]
+        ]
+        unclicked_regular_cells = [
+            cell
+            for row in updated_game_map.values()
+            for cell in row.values()
+            if not cell["is_bomb"] and not cell["is_revealed"]
+        ]
+        game.is_complete = len(clicked_bombs) > 0 or len(unclicked_regular_cells) == 0
+        game.game_map = stringify_game_map(updated_game_map)
+        game.save()
+
+        return dict(
+            id=encode(str(game.id)),
+            is_complete=game.is_complete,
+            game_board=generate_board(parse_json_game_map(game.game_map)),
+        )
 
 
 def update_game_map(row_index, column_index, game_map):
