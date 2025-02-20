@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Game } from "../_lib/types";
 import Cell from "./Cell";
 import { updateGame } from "../_lib/games.service";
+import ReturnHomeButton from "../../_components/ReturnHomeButton";
 
 type Props = {
   game: Game;
@@ -52,6 +53,7 @@ export default function Board({ game }: Props) {
           ))}
         </div>
       </div>
+      {isComplete && <ReturnHomeButton />}
     </div>
   );
 }
