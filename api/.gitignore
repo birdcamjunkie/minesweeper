@@ -1,0 +1,7 @@
+# Taken from: https://github.com/github/gitignore/blob/main/Python.gitignore
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
