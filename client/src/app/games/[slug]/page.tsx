@@ -16,6 +16,8 @@ export default async function GamePage({ params }: Props) {
   }
 
   return (
+    <App>
       <Board game={game} />
+    </App>
   );
 }
