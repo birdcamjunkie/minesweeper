@@ -1,5 +1,5 @@
 # minesweeper
-A React + Django minesweeper app
+A React frontend (with NextJS) + Django backened minesweeper app
 
 # Local Dev
 ## Start the server
@@ -17,9 +17,9 @@ python manage.py migrate
 ```
 python manage.py runserver
 ```
-The server should be now available on localhost:8000.
+The server should be now available on `localhost:8000`.
 
 ## Start the client
-Follow client's README.md instructions using `npm run dev`. The client should be available at localhost:3000. This is where the game UI resides.
+Follow client's README.md instructions using `npm run dev`. The client should be available at `localhost:3000`. This is where the game UI resides.
 To play the game you must have the server running on your local machine as well.
 
