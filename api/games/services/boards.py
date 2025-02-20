@@ -79,7 +79,7 @@ def update_game(row_index, column_index, game):
     updated_game_is_complete = -1 in updated_board or None not in updated_board
     print(updated_game_is_complete)
     return dict(
-        id=game.id, is_complete=updated_game_is_complete, game_board=updated_board
+        id=encode(str(game.id)), is_complete=updated_game_is_complete, game_board=updated_board
     )
 
 
