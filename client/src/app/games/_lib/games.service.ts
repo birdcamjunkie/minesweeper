@@ -1,29 +1,42 @@
+import * as changeCaseKeys from "change-case/keys";
+
 export async function getNewGame(): Promise<Game> {
-  // TODO: actually POST to /games to get new game
-  return Promise.resolve({
-    id: "MTE",
-    isComplete: false,
-    gameBoard: [null, null, null, null, null, null, null, null, null],
+  const response = await fetch("http://localhost:8000/games", {
+    method: "POST",
   });
+  if (!response.ok) {
+    console.log("Failed to generate a new game");
+    return null;
+  }
+  // TODO: handle if response.json() fails
+  const data = await response.json();
+  return changeCaseKeys.camelCase(data);
 }
 
 export async function getGame(game_id: string): Promise<Game> {
-  // GET to /games/[:id] to get a game
-  // return existing game object
-  if (game_id === "MTE") {
-    return Promise.resolve({
-      id: "MTE",
-      isComplete: false,
-      gameBoard: [null, null, null, null, null, null, null, null, null],
-    });
+  const response = await fetch(`http://localhost:8000/games/${game_id}`);
+  if (!response.ok) {
+    console.log(`Failed to get game with id ${game_id}`);
+    return null;
   }
-  return null;
+  const data = await response.json();
+  return changeCaseKeys.camelCase(data);
 }
 
 export async function updateGame(
   game_id: string,
   cell_index: number
 ): Promise<Game> {
-  // PUT to /games/[:id]/cell[:cell_index] to update game
-  // return the updated game object
+  const response = await fetch(
+    `http://localhost:8000/games/${game_id}/cell${cell_index}`,
+    {
+      method: "PUT",
+    }
+  );
+  if (!response.ok) {
+    console.log("Failed to update the game");
+    return null;
+  }
+  const { data, error } = await response.json();
+  return changeCaseKeys.camelCase(data);
 }

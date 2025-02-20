@@ -12,6 +12,10 @@ export default function StartGameButton() {
     onSuccess: (game: Game) => {
       router.push(`/games/${game.id}`);
     },
+    onError: () => {
+      // TODO: make a popup on page
+      console.log('Failed to create a game')
+    }
   });
 
   const onClickHandler = () => {

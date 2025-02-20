@@ -2,15 +2,20 @@ import Board from "../_components/Board";
 import { getGame } from "../_lib/games.service";
 import { notFound } from "next/navigation";
 
-export default async function GamePage(params) {
-  const game = await getGame("MTE");
+type Props = {
+  params: Promise<{ slug: string }>;
+};
+
+export default async function GamePage({ params }: Props) {
+  const slug = (await params).slug;
+  const game = await getGame(slug);
+
   if (!game) {
     return notFound();
   }
 
   return (
     <>
-      <div>Status: {game.isComplete} </div>
       <Board game={game} />
     </>
   );
