@@ -27,8 +27,8 @@ export default function Board({ game }: Props) {
       cell_index: index,
     })
   };
+
   const { isComplete, gameBoard } = gameState;
-  const numberOfColumns = Math.floor(Math.sqrt(gameBoard.length));
   const numberOfCellsCleared = gameBoard.filter(
     (cell) => cell != null && cell > -1
   ).length;
@@ -40,8 +40,8 @@ export default function Board({ game }: Props) {
          <div className="font-semibold text-xl">
         Number of Cells Cleared: {numberOfCellsCleared}
       </div>
-       <div className="flex justify-center items-center">
-        <div className={clsx("grid gap-2", `grid-cols-${numberOfColumns}`)}>
+      <div className="flex justify-center items-center">
+        <div className="grid gap-2 grid-cols-8">
           {gameBoard.map((value, index) => (
             <Cell
               key={`cell-${index}`}
