@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useMutation } from "@tanstack/react-query";
 import { getNewGame } from "../games/_lib/games.service";
+import { Game } from '../games/_lib/types';
 
 export default function StartGameButton() {
   const router = useRouter();
