@@ -1,20 +1,11 @@
 import random
-from django.shortcuts import render
-from django.http import (
-    HttpResponse,
-    HttpResponseBadRequest,
-    HttpResponseNotAllowed,
-    JsonResponse,
-)
-from django.views.decorators.csrf import csrf_exempt
-from games.models import Game
 from games.constants import (
     UNREVEALED_BOARD_CELL_VALUE,
     BOARD_BOMB_VALUE,
     BOARD_WIDTH,
     BOARD_BOMB_PERCENTAGE,
 )
-from games.utils import encode, decode, parse_json_game_map, stringify_game_map
+from games.utils import encode, parse_json_game_map, stringify_game_map
 
 
 def generate_map(size=BOARD_WIDTH):
@@ -75,7 +66,7 @@ def update_game(row_index, column_index, game):
     # no need to update a game if it is completed already
     if game.is_complete:
         game_board = generate_board(game_map)
-        return dic(
+        return dict(
             id=encode(str(game.id)), is_complete=game.is_complete, game_board=game_board
         )
     else:

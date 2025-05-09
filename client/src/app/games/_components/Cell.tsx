@@ -18,6 +18,7 @@ export default function Cell({ index, handleClick, value, isDisabled }: Props) {
       )}
       disabled={isDisabled}
       onClick={() => handleClick(index)}
+      type="button"
     >
       {value != null && value > 0 ? `${value}` : value === 0 ? "" : "x"}
     </button>

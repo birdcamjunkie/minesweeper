@@ -1,6 +1,5 @@
 import unittest
 
-from django.test import TestCase
 from games.services.boards import (
     generate_board,
     generate_map,
